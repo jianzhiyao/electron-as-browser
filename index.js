@@ -299,7 +299,8 @@ class BrowserLikeWindow extends EventEmitter {
           isInPlace,
           isMainFrame
         });
-        if (['http:', 'https:'].indexOf((new Url(href)).protocol.toLocaleLowerCase)) {
+        console.log()
+        if (['http:', 'https:'].indexOf((new Url(href)).protocol.toLocaleLowerCase) !== -1) {
           this.setTabConfig(id, { url: href });
         }
       }
