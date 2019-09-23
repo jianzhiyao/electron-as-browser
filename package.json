@@ -1,6 +1,6 @@
 {
   "name": "electron-as-browser2",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Make electron like browser easy and flexible.",
   "keywords": [
     "electron",
@@ -27,7 +27,8 @@
     "start": "electron example/main.js"
   },
   "dependencies": {
-    "electron-log": "^3.0.7"
+    "electron-log": "^3.0.7",
+    "url-parse": "^1.4.7"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.5",

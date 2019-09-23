@@ -1,6 +1,7 @@
 const { BrowserWindow, BrowserView, ipcMain } = require('electron');
 const EventEmitter = require('events');
 const log = require('electron-log');
+const Url = require('url-parse');
 
 log.transports.file.level = false;
 log.transports.console.level = false;
@@ -298,7 +299,10 @@ class BrowserLikeWindow extends EventEmitter {
           isInPlace,
           isMainFrame
         });
-        this.setTabConfig(id, { url: href });
+        let url = new Url(href);
+        if (['http', 'https'].indexOf(url.protocol.toLocaleLowerCase)) {
+          this.setTabConfig(id, { url: href });
+        }
       }
     });
     webContents.on('page-title-updated', (e, title) => {
