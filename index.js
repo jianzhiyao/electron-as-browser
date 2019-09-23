@@ -45,11 +45,17 @@ log.transports.console.level = false;
  * @param {string} [options.startPage = ''] - start page to load on browser open
  * @param {string} [options.blankPage = ''] - blank page to load on new tab
  * @param {string} [options.blankTitle = 'about:blank'] - blank page's title
+ * @param {string} [options.proxy = {}] - proxy config
+ * @param {string} [options.proxy.proxyRules = undefined] - proxy config:proxyRules
+ * @param {string} [options.proxy.proxyUsername = undefined] - proxy config:proxyUsername
+ * @param {string} [options.proxy.proxyPassword = undefined] - proxy config:proxyPassword
  * @param {boolean} [options.debug] - toggle debug
  */
 class BrowserLikeWindow extends EventEmitter {
   constructor(options) {
     super();
+
+    options.proxy = options.proxy || {};
 
     this.options = options;
     const {
@@ -105,7 +111,7 @@ class BrowserLikeWindow extends EventEmitter {
         action.call(webContents);
         log.debug(
           `do webContents action ${actionName} for ${this.currentViewId}:${webContents &&
-            webContents.getTitle()}`
+          webContents.getTitle()}`
         );
       } else {
         log.error('Invalid webContents action ', actionName);
@@ -270,7 +276,14 @@ class BrowserLikeWindow extends EventEmitter {
       log.debug('new-window', { title: webContents.getTitle() });
       this.newTab(url, id)
     });
-    
+
+    //handle proxy auth login event
+    webContents.on('login', (event, request, authInfo, callback) => {
+      event.preventDefault()
+      console.log('handle proxy auth login event')
+      callback(this.options.proxy.proxyUsername || undefined, this.options.proxy.proxyPassword || undefined)
+    })
+
     // Keep event in order
     webContents.on('did-start-loading', () => {
       log.debug('did-start-loading', { title: webContents.getTitle() });
