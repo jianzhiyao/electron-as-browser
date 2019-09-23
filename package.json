@@ -1,6 +1,6 @@
 {
-  "name": "electron-as-browser",
-  "version": "1.0.0",
+  "name": "electron-as-browser2",
+  "version": "1.0.1",
   "description": "Make electron like browser easy and flexible.",
   "keywords": [
     "electron",
@@ -10,11 +10,11 @@
     "addressbar"
   ],
   "main": "index.js",
-  "author": "hui.liu",
+  "author": "anker jam",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/hulufei/electron-as-browser"
+    "url": "https://github.com/jianzhiyao/electron-as-browser"
   },
   "files": [
     "index.js",
@@ -35,7 +35,7 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
     "classnames": "^2.2.6",
-    "electron": "6.0.1",
+    "electron": "^6.0.9",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "file-url": "^2.0.2"
