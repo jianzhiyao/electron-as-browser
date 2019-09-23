@@ -15,7 +15,7 @@ A node module to help build	browser like windows in electron.
 
 ## Install
 
-`npm i electron-as-browser`
+`npm i electron-as-browser2`
 
 ## Usage
 
