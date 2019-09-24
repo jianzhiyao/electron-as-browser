@@ -47,7 +47,6 @@ log.transports.console.level = false;
  * @param {string} [options.blankPage = ''] - blank page to load on new tab
  * @param {string} [options.blankTitle = 'about:blank'] - blank page's title
  * @param {string} [options.proxy = {}] - proxy config
- * @param {string} [options.proxy.proxyRules = undefined] - proxy config:proxyRules
  * @param {string} [options.proxy.proxyUsername = undefined] - proxy config:proxyUsername
  * @param {string} [options.proxy.proxyPassword = undefined] - proxy config:proxyPassword
  * @param {boolean} [options.debug] - toggle debug
