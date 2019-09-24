@@ -170,13 +170,8 @@ class BrowserLikeWindow extends EventEmitter {
 
         let self = this;
 
-        channels.forEach(([name, listener]) => ipcMain.on(name, function()  {
+        channels.forEach(([name, listener]) => ipcMain.on(name, function () {
             let { browserWindowId } = arguments[2]
-            console.log({
-                browserWindowId: browserWindowId,
-                _browserWindowId: self._browserWindowId,
-                args: arguments
-            })
             if (self._browserWindowId && typeof browserWindowId != 'undefined') {
                 if (self._browserWindowId != browserWindowId && browserWindowId) {
                     return;
@@ -291,16 +286,25 @@ class BrowserLikeWindow extends EventEmitter {
         const { id, webContents } = currentView;
 
         //handle new-window event
-        webContents.on('new-window', (event, url) => {
-            event.preventDefault()
-            log.debug('new-window', { title: webContents.getTitle() });
-            this.newTab(url, id)
+        webContents.on('new-window', (e, newUrl, frameName, disposition, winOptions) => {
+            e.preventDefault();
+
+            if (disposition === 'new-window') {
+                log.debug('Popup in new window', { disposition, newUrl });
+                const popWin = new BrowserWindow(winOptions);
+                popWin.loadURL(newUrl);
+                // eslint-disable-next-line no-param-reassign
+                e.newGuest = popWin;
+            } else {
+                log.debug('Popup in new tab', { disposition, newUrl });
+                this.newTab(newUrl, id);
+            }
         });
 
         //handle proxy auth login event
         webContents.on('login', (event, request, authInfo, callback) => {
             event.preventDefault()
-            console.log('handle proxy auth login event')
+            console.debug('handle proxy auth login event')
             callback(this.options.proxy.proxyUsername || undefined, this.options.proxy.proxyPassword || undefined)
         })
 
