@@ -1,65 +1,19 @@
 const { ipcRenderer } = require('electron');
 
-// Used in Renderer process
+module.exports = function (options = {}) {
+    const { browserWindowId } = options;
 
-/**
- * Tell browser view to load url
- * @param {string} url
- */
-const sendEnterURL = url => ipcRenderer.send('url-enter', url);
+    return {
+        sendEnterURL: (url) => { ipcRenderer.send('url-enter', url, { browserWindowId }) },
+        sendChangeURL: (url) => { ipcRenderer.send('url-change', url, { browserWindowId }) },
 
-/**
- * Tell browser view url in address bar changed
- * @param {string} url
- */
-const sendChangeURL = url => ipcRenderer.send('url-change', url);
+        sendGoBack: () => { ipcRenderer.send('act', 'goBack', { browserWindowId }) },
+        sendGoForward: () => { ipcRenderer.send('act', 'goForward', { browserWindowId }) },
+        sendReload: () => { ipcRenderer.send('act', 'reload', { browserWindowId }) },
+        sendStop: () => { ipcRenderer.send('act', 'stop', { browserWindowId }) },
 
-const sendAct = actName => {
-  ipcRenderer.send('act', actName);
-};
-
-/**
- * Tell browser view to goBack
- */
-const sendGoBack = () => sendAct('goBack');
-
-/**
- * Tell browser view to goForward
- */
-const sendGoForward = () => sendAct('goForward');
-
-// Tell browser view to reload
-const sendReload = () => sendAct('reload');
-
-// Tell browser view to stop load
-const sendStop = () => sendAct('stop');
-
-/**
- * Tell browser view to close tab
- * @param {TabID} id
- */
-const sendCloseTab = id => ipcRenderer.send('close-tab', id);
-
-/**
- * Create a new tab
- * @param {string} [url]
- */
-const sendNewTab = url => ipcRenderer.send('new-tab', url);
-
-/**
- * Tell browser view to switch to specified tab
- * @param {TabID} id
- */
-const sendSwitchTab = id => ipcRenderer.send('switch-tab', id);
-
-module.exports = {
-  sendEnterURL, // sendEnterURL(url) to load url
-  sendChangeURL, // sendChangeURL(url) on addressbar input change
-  sendGoBack,
-  sendGoForward,
-  sendReload,
-  sendStop,
-  sendNewTab, // sendNewTab([url])
-  sendSwitchTab, // sendSwitchTab(toID)
-  sendCloseTab // sendCloseTab(id)
+        sendNewTab: (url) => { ipcRenderer.send('new-tab', url, { browserWindowId }); },
+        sendSwitchTab: (id) => { ipcRenderer.send('switch-tab', id, { browserWindowId }) },
+        sendCloseTab: (id) => { ipcRenderer.send('close-tab', id, { browserWindowId }) },
+    };
 };
