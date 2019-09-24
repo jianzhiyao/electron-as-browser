@@ -301,6 +301,13 @@ class BrowserLikeWindow extends EventEmitter {
             }
         });
 
+        //handle will-redirect event
+        webContents.on('will-redirect', (event, url , isInPlace , isMainFrame ,frameProcessId ,frameRoutingId ) => {
+            event.preventDefault()
+            webContents.loadURL(url)
+        })
+
+
         //handle proxy auth login event
         webContents.on('login', (event, request, authInfo, callback) => {
             event.preventDefault()
