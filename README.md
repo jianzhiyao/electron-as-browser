@@ -1,6 +1,6 @@
-# electron-as-browser
+# electron-as-browser2
 
-![version](https://img.shields.io/npm/v/electron-as-browser.svg?style=flat-square)![downloads](https://img.shields.io/npm/dt/electron-as-browser.svg?style=flat-square)![license](https://img.shields.io/npm/l/electron-as-browser.svg?style=flat-square)
+![version](https://img.shields.io/npm/v/electron-as-browser2.svg?style=flat-square)![downloads](https://img.shields.io/npm/dt/electron-as-browser2.svg?style=flat-square)![license](https://img.shields.io/npm/l/electron-as-browser2.svg?style=flat-square)
 
 A node module to help build	browser like windows in electron.
 
@@ -22,7 +22,7 @@ A node module to help build	browser like windows in electron.
 ### First, create BrowserLikeWindow in [Main](https://electronjs.org/docs/glossary#main-process) process
 
 ```javascript
-const BrowserLikeWindow = require('electron-as-browser');
+const BrowserLikeWindow = require('electron-as-browser2');
 
 let browser;
 
@@ -54,7 +54,7 @@ To make the control interface works, there are two steps:
 For react users, there is a custom hook `useConnect` to help you setup ipc channels.
 
 ```javascript
-const useConnect = require('electron-as-browser/useConnect');
+const useConnect = require('electron-as-browser2/useConnect');
 
 const ControlPanel = () => {
   const { tabs, tabIDs, activeID } = useConnect();
