@@ -1,12 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title></title>
-  <link rel="stylesheet" href="./style.css" media="all">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="./style.css" media="all">
 </head>
+
 <body>
-  <div id="app" />
-  <script src="./control-compiled.js"></script>
+<div id="app" />
 </body>
+<script>
+    (function () {
+        var url = new URL(location.href);
+        var wId = url.searchParams.get("wId");
+        var s = document.createElement("script");
+        s.setAttribute("src", "./control-compiled.js?wId=" + wId);
+        document.head.appendChild(s);
+    })()
+</script>
+
 </html>

@@ -50,6 +50,7 @@ log.transports.console.level = false;
  * @param {string} [options.proxy.proxyUsername = undefined] - proxy config:proxyUsername
  * @param {string} [options.proxy.proxyPassword = undefined] - proxy config:proxyPassword
  * @param {boolean} [options.debug] - toggle debug
+ * @param {string} [options.browserWindowId] - assign browserWindowId
  */
 class BrowserLikeWindow extends EventEmitter {
     _browserWindowId
@@ -177,7 +178,7 @@ class BrowserLikeWindow extends EventEmitter {
                 args: arguments
             })
             if (self._browserWindowId && typeof browserWindowId != 'undefined') {
-                if (self._browserWindowId != browserWindowId) {
+                if (self._browserWindowId != browserWindowId && browserWindowId) {
                     return;
                 }
             }
