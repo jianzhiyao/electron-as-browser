@@ -1,27 +1,48 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import cx from 'classnames';
-import useConnect from '../../useConnect';
-import controlActionFromFile from '../../control';
+import React from "react";
+import ReactDOM from "react-dom";
+import cx from "classnames";
+import useConnect from "./js/useConnect";
+import controlActionFromFile from "./js/control";
 
-
-const browserWindowId = (function () {
-    return (new URL(location.href)).searchParams.get("wId") || '';
-})()
+const browserWindowId = (function() {
+    return new URL(location.href).searchParams.get("wId") || "";
+})();
 const controlAction = controlActionFromFile({ browserWindowId });
 
 const IconLoading = () => (
     <svg
-        viewBox="0 0 1024 1024"
-        focusable="false"
-        className="anticon-spin"
-        data-icon="loading"
-        width="1em"
-        height="1em"
-        fill="currentColor"
-        aria-hidden="true"
+        version="1.1"
+        className="icon-loading"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlnsXlink="http://www.w3.org/1999/xlink"
+        x="0px"
+        y="0px"
+        viewBox="0 0 40 40"
+        enableBackground="new 0 0 40 40"
+        xmlSpace="preserve"
     >
-        <path d="M988 548c-19.9 0-36-16.1-36-36 0-59.4-11.6-117-34.6-171.3a440.45 440.45 0 0 0-94.3-139.9 437.71 437.71 0 0 0-139.9-94.3C629 83.6 571.4 72 512 72c-19.9 0-36-16.1-36-36s16.1-36 36-36c69.1 0 136.2 13.5 199.3 40.3C772.3 66 827 103 874 150c47 47 83.9 101.8 109.7 162.7 26.7 63.1 40.2 130.2 40.2 199.3.1 19.9-16 36-35.9 36z" />
+        <path
+            opacity="0.2"
+            fill="#000"
+            d="M20.201,5.169c-8.254,0-14.946,6.692-14.946,14.946c0,8.255,6.692,14.946,14.946,14.946
+    s14.946-6.691,14.946-14.946C35.146,11.861,28.455,5.169,20.201,5.169z M20.201,31.749c-6.425,0-11.634-5.208-11.634-11.634
+    c0-6.425,5.209-11.634,11.634-11.634c6.425,0,11.633,5.209,11.633,11.634C31.834,26.541,26.626,31.749,20.201,31.749z"
+        />
+        <path
+            fill="#000"
+            d="M26.013,10.047l1.654-2.866c-2.198-1.272-4.743-2.012-7.466-2.012h0v3.312h0
+    C22.32,8.481,24.301,9.057,26.013,10.047z"
+        >
+            <animateTransform
+                attributeType="xml"
+                attributeName="transform"
+                type="rotate"
+                from="0 20 20"
+                to="360 20 20"
+                dur="0.618s"
+                repeatCount="indefinite"
+            />
+        </path>
     </svg>
 );
 
@@ -96,27 +117,70 @@ const IconRight = () => (
     </svg>
 );
 
-function Control() {
-    const { tabs, tabIDs, activeID } = useConnect({ browserWindowId });
+//地址栏分类
+class LocationBar extends React.Component{
+    constructor(props) {
+        super(props)
+        this.state = {
+            url: props.url || '',
+            input: null,
+        };
+    }
 
-    const { url, canGoForward, canGoBack, isLoading } = tabs[activeID] || {};
-
-    const onUrlChange = e => {
-        // Sync to tab config
-        const v = e.target.value;
-        controlAction.sendChangeURL(v);
-    };
-    const onPressEnter = e => {
-        if (e.keyCode !== 13) return;
-        const v = e.target.value.trim();
-        if (!v) return;
-
-        let href = v;
-        if (!/^.*?:\/\//.test(v)) {
-            href = `https://${v}`;
+    componentWillReceiveProps(nextProps) {
+        //接收来自浏览器串口跳转链接
+        if (nextProps.url !== this.props.url) {
+            this.setState({url: nextProps.url})
         }
-        controlAction.sendEnterURL(href);
-    };
+    }
+
+    componentDidUpdate(){
+        if (this.state.url == '' && this.state.input) {
+            this.state.input.focus()
+        }
+    }
+
+    handleChange(e) {
+        this.setState({
+            url: e.target.value,
+        })
+    }
+
+    render() {
+        const assignLocationInput = input => {
+            this.state.input = input;
+        };
+
+        const onPressEnter = e => {
+            if (e.keyCode !== 13) return;
+            const v = e.target.value.trim();
+            if (!v) return;
+
+            let href = v;
+            if (!/^.*?:\/\//.test(v)) {
+                href = `http://${v}`;
+            }
+            controlAction.sendEnterURL(href);
+        };
+
+        //双向绑定
+        return (<input
+            className="address"
+            ref={input => {
+                assignLocationInput(input);
+            }}
+            value={this.state.url}
+            onChange={this.handleChange.bind(this)}
+            onKeyDown={onPressEnter}
+        />);
+    }
+}
+
+function Control() {
+    const {tabs, tabIDs, activeID} = useConnect({browserWindowId});
+
+    const {url, canGoForward, canGoBack, isLoading} = tabs[activeID] || {};
+
     const close = (e, id) => {
         e.stopPropagation();
         controlAction.sendCloseTab(id);
@@ -134,25 +198,29 @@ function Control() {
                 <>
                     {tabIDs.map(id => {
                         // eslint-disable-next-line no-shadow
-                        const { title, isLoading, favicon } = tabs[id] || {};
+                        const {title, isLoading, favicon} = tabs[id] || {};
                         return (
                             <div
                                 key={id}
-                                className={cx('tab', { active: id === activeID })}
+                                className={cx("tab", {active: id === activeID})}
                                 onClick={() => switchTab(id)}
                             >
-                                {isLoading ? <IconLoading /> : !!favicon && <img src={favicon} width="16" alt="" />}
+                                {isLoading ? (
+                                    <IconLoading/>
+                                ) : (
+                                    !!favicon && <img src={favicon} width="16" alt=""/>
+                                )}
                                 <div className="title">
                                     <div className="title-content">{title}</div>
                                 </div>
                                 <div className="close" onClick={e => close(e, id)}>
-                                    <IconClose />
+                                    <IconClose/>
                                 </div>
                             </div>
                         );
                     })}
-                    <span type="plus" style={{ marginLeft: 10 }} onClick={newTab}>
-            <IconPlus />
+                    <span type="plus" style={{marginLeft: 10}} onClick={newTab}>
+            <IconPlus/>
           </span>
                 </>
             </div>
@@ -160,27 +228,27 @@ function Control() {
                 <div className="bar address-bar">
                     <div className="actions">
                         <div
-                            className={cx('action', { disabled: !canGoBack })}
+                            className={cx("action", {disabled: !canGoBack})}
                             onClick={canGoBack ? controlAction.sendGoBack : undefined}
                         >
-                            <IconLeft />
+                            <IconLeft/>
                         </div>
                         <div
-                            className={cx('action', { disabled: !canGoForward })}
+                            className={cx("action", {disabled: !canGoForward})}
                             onClick={canGoForward ? controlAction.sendGoForward : undefined}
                         >
-                            <IconRight />
+                            <IconRight/>
                         </div>
-                        <div className={cx('action')} onClick={isLoading ? controlAction.sendStop : controlAction.sendReload}>
-                            {isLoading ? <IconClose /> : <IconReload />}
+                        <div
+                            className={cx("action")}
+                            onClick={
+                                isLoading ? controlAction.sendStop : controlAction.sendReload
+                            }
+                        >
+                            {isLoading ? <IconClose/> : <IconReload/>}
                         </div>
                     </div>
-                    <input
-                        className="address"
-                        value={url || ''}
-                        onChange={onUrlChange}
-                        onKeyDown={onPressEnter}
-                    />
+                    <LocationBar url={url || ''}></LocationBar>
                 </div>
             </div>
         </div>
@@ -188,4 +256,4 @@ function Control() {
 }
 
 // eslint-disable-next-line no-undef
-ReactDOM.render(<Control />, document.getElementById('app'));
+ReactDOM.render(<Control />, document.getElementById("app"));
