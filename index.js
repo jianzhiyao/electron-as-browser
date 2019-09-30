@@ -62,6 +62,7 @@ class BrowserLikeWindow extends EventEmitter {
         this._browserWindowId = options.browserWindowId || '';
 
         this.options = options;
+        this.options.blankTitle = this.options.blankTitle || 'about:blank'
         const {
             width = 1024,
             height = 800,
@@ -341,8 +342,9 @@ class BrowserLikeWindow extends EventEmitter {
             this.setTabConfig(id, { favicon: favicons[0] });
         });
         webContents.on('did-stop-loading', () => {
-            log.debug('did-stop-loading', { title: webContents.getTitle() });
-            this.setTabConfig(id, { isLoading: false });
+            let title = this.options.blankTitle == webContents.getTitle() ? webContents.getURL() : webContents.getTitle();
+            log.debug('did-stop-loading', {title: title});
+            this.setTabConfig(id, {isLoading: false, title: title});
         });
 
         webContents.loadURL(url);
@@ -387,7 +389,7 @@ class BrowserLikeWindow extends EventEmitter {
         view.setAutoResize({ width: true, height: true });
         this.loadURL(url || this.options.blankPage);
         this.setTabConfig(view.id, {
-            title: this.options.blankTitle || 'about:blank'
+            title: this.options.blankTitle
         });
         /**
          * new-tab event.
