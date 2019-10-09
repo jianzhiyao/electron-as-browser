@@ -319,7 +319,7 @@ class BrowserLikeWindow extends EventEmitter {
         // Keep event in order
         webContents.on('did-start-loading', () => {
             log.debug('did-start-loading', { title: webContents.getTitle() });
-            this.setTabConfig(id, { isLoading: true });
+            this.setTabConfig(id, {isLoading: true});
         });
 
         webContents.on('did-start-navigation', (e, href, isInPlace, isMainFrame) => {
@@ -389,7 +389,8 @@ class BrowserLikeWindow extends EventEmitter {
         view.setAutoResize({ width: true, height: true });
         this.loadURL(url || this.options.blankPage);
         this.setTabConfig(view.id, {
-            title: this.options.blankTitle
+            title: this.options.blankTitle,
+            proxyTitle: this.options.proxyTitle || '',
         });
         /**
          * new-tab event.
