@@ -77,6 +77,12 @@ class BrowserLikeWindow extends EventEmitter {
             height
         });
 
+        if(this.options.isMaximized || false)
+        {
+            this.win.maximize();
+            this.win.show();
+        }
+
         /**
          * closed event
          *
