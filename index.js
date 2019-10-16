@@ -1,4 +1,4 @@
-const { BrowserWindow, BrowserView, ipcMain } = require('electron');
+const {BrowserWindow, BrowserView, ipcMain} = require('electron');
 const EventEmitter = require('events');
 const log = require('electron-log');
 const Url = require('url-parse');
@@ -77,8 +77,7 @@ class BrowserLikeWindow extends EventEmitter {
             height
         });
 
-        if(this.options.isMaximized || false)
-        {
+        if (this.options.isMaximized || false) {
             this.win.maximize();
             this.win.show();
         }
@@ -111,9 +110,11 @@ class BrowserLikeWindow extends EventEmitter {
         // BrowserView should add to window before setup
         this.win.addBrowserView(this.controlView);
         this.controlView.setBounds(this.getControlBounds());
-        this.controlView.setAutoResize({ width: true });
+        this.controlView.setAutoResize({width: true});
         this.controlView.webContents.loadFile(controlPanel, {
-            browserWindowId: this._browserWindowId,
+            query: {
+                browserWindowId: this._browserWindowId,
+            },
         });
 
         const webContentsAct = actionName => {
@@ -145,7 +146,7 @@ class BrowserLikeWindow extends EventEmitter {
                 this.emit('control-ready', e);
             },
             'url-change': (e, url) => {
-                this.setTabConfig(this.currentViewId, { url });
+                this.setTabConfig(this.currentViewId, {url});
             },
             'url-enter': (e, url) => {
                 this.loadURL(url);
@@ -158,7 +159,7 @@ class BrowserLikeWindow extends EventEmitter {
                 this.switchTab(id);
             },
             'close-tab': (e, id) => {
-                log.debug('close tab ', { id, currentViewId: this.currentViewId });
+                log.debug('close tab ', {id, currentViewId: this.currentViewId});
                 if (id === this.currentViewId) {
                     const removeIndex = this.tabs.indexOf(id);
                     const nextIndex = removeIndex === this.tabs.length - 1 ? 0 : removeIndex + 1;
@@ -180,7 +181,7 @@ class BrowserLikeWindow extends EventEmitter {
         let self = this;
 
         channels.forEach(([name, listener]) => ipcMain.on(name, function () {
-            let { browserWindowId } = arguments[2]
+            let {browserWindowId} = arguments[2]
             if (self._browserWindowId && typeof browserWindowId != 'undefined') {
                 if (self._browserWindowId != browserWindowId && browserWindowId) {
                     return;
@@ -197,7 +198,7 @@ class BrowserLikeWindow extends EventEmitter {
         });
 
         if (this.options.debug) {
-            this.controlView.webContents.openDevTools({ mode: 'detach' });
+            this.controlView.webContents.openDevTools({mode: 'detach'});
             log.transports.console.level = 'debug';
         }
     }
@@ -241,7 +242,7 @@ class BrowserLikeWindow extends EventEmitter {
     }
 
     get currentWebContents() {
-        const { webContents } = this.currentView || {};
+        const {webContents} = this.currentView || {};
         return webContents;
     }
 
@@ -275,7 +276,7 @@ class BrowserLikeWindow extends EventEmitter {
 
     setTabConfig(viewId, kv) {
         const tab = this.tabConfigs[viewId];
-        const { webContents } = this.views[viewId] || {};
+        const {webContents} = this.views[viewId] || {};
         this.tabConfigs = {
             ...this.tabConfigs,
             [viewId]: {
@@ -289,29 +290,29 @@ class BrowserLikeWindow extends EventEmitter {
     }
 
     loadURL(url) {
-        const { currentView } = this;
+        const {currentView} = this;
         if (!url || !currentView) return;
 
-        const { id, webContents } = currentView;
+        const {id, webContents} = currentView;
 
         //handle new-window event
         webContents.on('new-window', (e, newUrl, frameName, disposition, winOptions) => {
             e.preventDefault();
 
             if (disposition === 'new-window') {
-                log.debug('Popup in new window', { disposition, newUrl });
+                log.debug('Popup in new window', {disposition, newUrl});
                 const popWin = new BrowserWindow(winOptions);
                 popWin.loadURL(newUrl);
                 // eslint-disable-next-line no-param-reassign
                 e.newGuest = popWin;
             } else {
-                log.debug('Popup in new tab', { disposition, newUrl });
+                log.debug('Popup in new tab', {disposition, newUrl});
                 this.newTab(newUrl, id);
             }
         });
 
         //handle will-redirect event
-        webContents.on('will-redirect', (event, url , isInPlace , isMainFrame ,frameProcessId ,frameRoutingId ) => {
+        webContents.on('will-redirect', (event, url, isInPlace, isMainFrame, frameProcessId, frameRoutingId) => {
             event.preventDefault()
             webContents.loadURL(url)
         })
@@ -326,7 +327,7 @@ class BrowserLikeWindow extends EventEmitter {
 
         // Keep event in order
         webContents.on('did-start-loading', () => {
-            log.debug('did-start-loading', { title: webContents.getTitle() });
+            log.debug('did-start-loading', {title: webContents.getTitle()});
             this.setTabConfig(id, {isLoading: true});
         });
 
@@ -338,16 +339,16 @@ class BrowserLikeWindow extends EventEmitter {
                     isInPlace,
                     isMainFrame
                 });
-                this.setTabConfig(id, { url: href });
+                this.setTabConfig(id, {url: href});
             }
         });
         webContents.on('page-title-updated', (e, title) => {
             log.debug('page-title-updated', title);
-            this.setTabConfig(id, { title });
+            this.setTabConfig(id, {title});
         });
         webContents.on('page-favicon-updated', (e, favicons) => {
             log.debug('page-favicon-updated', favicons);
-            this.setTabConfig(id, { favicon: favicons[0] });
+            this.setTabConfig(id, {favicon: favicons[0]});
         });
         webContents.on('did-stop-loading', () => {
             let title = this.options.blankTitle == webContents.getTitle() ? webContents.getURL() : webContents.getTitle();
@@ -360,7 +361,7 @@ class BrowserLikeWindow extends EventEmitter {
         this.setContentBounds();
 
         if (this.options.debug) {
-            webContents.openDevTools({ mode: 'detach' });
+            webContents.openDevTools({mode: 'detach'});
         }
     }
 
@@ -394,7 +395,7 @@ class BrowserLikeWindow extends EventEmitter {
 
         // Add to manager first
         this.setCurrentView(view.id);
-        view.setAutoResize({ width: true, height: true });
+        view.setAutoResize({width: true, height: true});
         this.loadURL(url || this.options.blankPage);
         this.setTabConfig(view.id, {
             title: this.options.blankTitle,
