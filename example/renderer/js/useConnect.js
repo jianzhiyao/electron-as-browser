@@ -3,7 +3,7 @@ const { useEffect, useState } = require('react');
 
 // Used in Renderer process
 
-const noop = () => { };
+const noop = () => {};
 
 /**
  * A custom hook to create ipc connection between BrowserView and ControlView

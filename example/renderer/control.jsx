@@ -176,11 +176,34 @@ class LocationBar extends React.Component{
     }
 }
 
+class ProxyIpTitle extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            title: props.title || '',
+        };
+    }
+
+    componentWillReceiveProps(nextProps) {
+        //接收来自浏览器串口跳转链接
+        if (nextProps.title !== this.props.title) {
+            this.setState({title: nextProps.title})
+        }
+    }
+
+    render() {
+        return (
+            <div className="ip-title-container">
+                <a className="ip-title">{this.state.title}</a>
+            </div>
+        );
+    }
+}
+
 function Control() {
     const {tabs, tabIDs, activeID} = useConnect({browserWindowId});
 
-    const {url, canGoForward, canGoBack, isLoading} = tabs[activeID] || {};
-
+    const {url, canGoForward, canGoBack, isLoading, proxyTitle} = tabs[activeID] || {};
     const close = (e, id) => {
         e.stopPropagation();
         controlAction.sendCloseTab(id);
@@ -213,17 +236,23 @@ function Control() {
                                 <div className="title">
                                     <div className="title-content">{title}</div>
                                 </div>
-                                <div className="close" onClick={e => close(e, id)}>
+                                <div className="close" onClick={e => {
+                                    close(e, id);
+                                    console.log(id)
+                                }}>
                                     <IconClose/>
                                 </div>
                             </div>
                         );
                     })}
                     <span type="plus" style={{marginLeft: 10}} onClick={newTab}>
-            <IconPlus/>
-          </span>
+                            <IconPlus/>
+                        </span>
                 </>
             </div>
+            {
+                proxyTitle ? <ProxyIpTitle title={proxyTitle}/> : ''
+            }
             <div className="bars">
                 <div className="bar address-bar">
                     <div className="actions">
@@ -256,4 +285,7 @@ function Control() {
 }
 
 // eslint-disable-next-line no-undef
-ReactDOM.render(<Control />, document.getElementById("app"));
+ReactDOM.render(<Control/>, document.getElementById("app"), () => {
+
+});
+

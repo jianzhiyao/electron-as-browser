@@ -1,19 +1,24 @@
 const { ipcRenderer } = require('electron');
 
-module.exports = function (options = {}) {
+//处理界面点击相关事件
+module.exports = function(options = {}) {
     const { browserWindowId } = options;
 
+    const ipcRendererSend = (ation, value) => {
+        ipcRenderer.send(ation, value, { browserWindowId })
+    }
+
     return {
-        sendEnterURL: (url) => { ipcRenderer.send('url-enter', url, { browserWindowId }) },
-        sendChangeURL: (url) => { ipcRenderer.send('url-change', url, { browserWindowId }) },
+        sendEnterURL: (url) => { ipcRendererSend('url-enter', url) },
+        sendChangeURL: (url) => { ipcRendererSend('url-change', url) },
 
-        sendGoBack: () => { ipcRenderer.send('act', 'goBack', { browserWindowId }) },
-        sendGoForward: () => { ipcRenderer.send('act', 'goForward', { browserWindowId }) },
-        sendReload: () => { ipcRenderer.send('act', 'reload', { browserWindowId }) },
-        sendStop: () => { ipcRenderer.send('act', 'stop', { browserWindowId }) },
+        sendGoBack: () => { ipcRendererSend('act', 'goBack') },
+        sendGoForward: () => { ipcRendererSend('act', 'goForward') },
+        sendReload: () => { ipcRendererSend('act', 'reload') },
+        sendStop: () => { ipcRendererSend('act', 'stop') },
 
-        sendNewTab: (url) => { ipcRenderer.send('new-tab', url, { browserWindowId }); },
-        sendSwitchTab: (id) => { ipcRenderer.send('switch-tab', id, { browserWindowId }) },
-        sendCloseTab: (id) => { ipcRenderer.send('close-tab', id, { browserWindowId }) },
+        sendNewTab: (url) => { ipcRendererSend('new-tab', url); },
+        sendSwitchTab: (id) => { ipcRendererSend('switch-tab', id) },
+        sendCloseTab: (id) => { ipcRendererSend('close-tab', id) },
     };
-};
+}

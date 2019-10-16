@@ -13,6 +13,7 @@
 <script>
     (function () {
         var url = new URL(location.href);
+        console.log({url})
         var browserWindowId = url.searchParams.get("browserWindowId");
         var s = document.createElement("script");
         s.setAttribute("src", "./control-compiled.js?wId=" + browserWindowId);
