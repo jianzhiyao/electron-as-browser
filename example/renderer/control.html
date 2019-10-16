@@ -13,9 +13,9 @@
 <script>
     (function () {
         var url = new URL(location.href);
-        var wId = url.searchParams.get("wId");
+        var browserWindowId = url.searchParams.get("browserWindowId");
         var s = document.createElement("script");
-        s.setAttribute("src", "./control-compiled.js?wId=" + wId);
+        s.setAttribute("src", "./control-compiled.js?wId=" + browserWindowId);
         document.head.appendChild(s);
     })()
 </script>
