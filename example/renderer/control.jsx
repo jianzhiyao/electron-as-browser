@@ -5,7 +5,7 @@ import useConnect from "./js/useConnect";
 import controlActionFromFile from "./js/control";
 
 const browserWindowId = (function() {
-    return new URL(location.href).searchParams.get("wId") || "";
+    return new URL(location.href).searchParams.get("browserWindowId") || "";
 })();
 const controlAction = controlActionFromFile({ browserWindowId });
 
