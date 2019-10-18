@@ -53,7 +53,7 @@ log.transports.console.level = false;
  * @param {string} [options.browserWindowId] - assign browserWindowId
  * @param {string} [options.errorPage = {}] - error page config
  * @param {string} [options.errorPage.timeout = ''] - render where page timeout
- * @param {string} [options.errorPage.block = ''] - render where page blocked
+ * @param {string} [options.errorPage.blocked = ''] - render where page blocked
  */
 class BrowserLikeWindow extends EventEmitter {
     _browserWindowId
@@ -359,15 +359,23 @@ class BrowserLikeWindow extends EventEmitter {
             this.setTabConfig(id, {favicon: favicons[0]});
         });
         webContents.on('did-stop-loading', () => {
-            let title = this.options.blankTitle == webContents.getTitle() ? webContents.getURL() : webContents.getTitle();
+            let href = webContents.getURL();
+            let title = this.options.blankTitle == webContents.getTitle() ? href : webContents.getTitle();
             log.debug('did-stop-loading', {title: title});
-            this.setTabConfig(id, {isLoading: false, title: title});
+
+            if (Object.values(errorPage).indexOf(href) == -1) {
+                //not in the list of errorPage
+                this.setTabConfig(id, {isLoading: false, title: title});
+            } else {
+                //in the list of errorPage
+                this.setTabConfig(id, {isLoading: false, title: this.tabConfigs[id].url || title});
+            }
         });
 
         webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
             let {
                 timeout = undefined,
-                block = undefined,
+                blocked = undefined,
             } = errorPage;
             switch (errorDescription) {
                 case 'ERR_CONNECTION_TIMED_OUT':
@@ -375,8 +383,8 @@ class BrowserLikeWindow extends EventEmitter {
                         webContents.loadURL(timeout).then().catch();
                     break;
                 case 'ERR_BLOCKED_BY_CLIENT':
-                    if (block)
-                        webContents.loadURL(block).then().catch();
+                    if (blocked)
+                        webContents.loadURL(blocked).then().catch();
                     break;
             }
         });
