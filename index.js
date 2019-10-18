@@ -51,6 +51,9 @@ log.transports.console.level = false;
  * @param {string} [options.proxy.proxyPassword = undefined] - proxy config:proxyPassword
  * @param {boolean} [options.debug] - toggle debug
  * @param {string} [options.browserWindowId] - assign browserWindowId
+ * @param {string} [options.errorPage = {}] - error page config
+ * @param {string} [options.errorPage.timeout = ''] - render where page timeout
+ * @param {string} [options.errorPage.cancel = ''] - render where page cancel
  */
 class BrowserLikeWindow extends EventEmitter {
     _browserWindowId
@@ -58,6 +61,7 @@ class BrowserLikeWindow extends EventEmitter {
     constructor(options) {
         super();
 
+        options.errorPage = options.errorPage || {};
         options.proxy = options.proxy || {};
         this._browserWindowId = options.browserWindowId || '';
 
@@ -383,6 +387,23 @@ class BrowserLikeWindow extends EventEmitter {
     newTab(url, appendTo) {
         const view = new BrowserView({
             webPreferences: this.options.viewReferences
+        });
+
+        view.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL, isMainFrame, frameProcessId, frameRoutingId) => {
+            let {
+                timeout = undefined,
+                cancel = undefined,
+            } = this.options.errorPage || {};
+            switch (errorDescription) {
+                case 'ERR_CONNECTION_TIMED_OUT':
+                    if(timeout)
+                        view.webContents.loadURL(timeout).then().catch();
+                    ;break;
+                case 'ERR_CONNECTION_TIMED_OUT':
+                    if(cancel)
+                        view.webContents.loadURL(cancel).then().catch();
+                    ;break;
+            }
         });
 
         if (appendTo) {
