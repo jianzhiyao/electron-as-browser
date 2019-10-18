@@ -53,7 +53,7 @@ log.transports.console.level = false;
  * @param {string} [options.browserWindowId] - assign browserWindowId
  * @param {string} [options.errorPage = {}] - error page config
  * @param {string} [options.errorPage.timeout = ''] - render where page timeout
- * @param {string} [options.errorPage.cancel = ''] - render where page cancel
+ * @param {string} [options.errorPage.block = ''] - render where page blocked
  */
 class BrowserLikeWindow extends EventEmitter {
     _browserWindowId
@@ -298,6 +298,7 @@ class BrowserLikeWindow extends EventEmitter {
         if (!url || !currentView) return;
 
         const {id, webContents} = currentView;
+        const {errorPage = {}} = this.options
 
         //handle new-window event
         webContents.on('new-window', (e, newUrl, frameName, disposition, winOptions) => {
@@ -343,7 +344,10 @@ class BrowserLikeWindow extends EventEmitter {
                     isInPlace,
                     isMainFrame
                 });
-                this.setTabConfig(id, {url: href});
+
+                if (Object.values(errorPage).indexOf(href) == -1) {
+                    this.setTabConfig(id, {url: href});
+                }
             }
         });
         webContents.on('page-title-updated', (e, title) => {
@@ -358,6 +362,23 @@ class BrowserLikeWindow extends EventEmitter {
             let title = this.options.blankTitle == webContents.getTitle() ? webContents.getURL() : webContents.getTitle();
             log.debug('did-stop-loading', {title: title});
             this.setTabConfig(id, {isLoading: false, title: title});
+        });
+
+        webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+            let {
+                timeout = undefined,
+                block = undefined,
+            } = errorPage;
+            switch (errorDescription) {
+                case 'ERR_CONNECTION_TIMED_OUT':
+                    if (timeout)
+                        webContents.loadURL(timeout).then().catch();
+                    break;
+                case 'ERR_BLOCKED_BY_CLIENT':
+                    if (block)
+                        webContents.loadURL(block).then().catch();
+                    break;
+            }
         });
 
         webContents.loadURL(url);
@@ -387,23 +408,6 @@ class BrowserLikeWindow extends EventEmitter {
     newTab(url, appendTo) {
         const view = new BrowserView({
             webPreferences: this.options.viewReferences
-        });
-
-        view.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL, isMainFrame, frameProcessId, frameRoutingId) => {
-            let {
-                timeout = undefined,
-                cancel = undefined,
-            } = this.options.errorPage || {};
-            switch (errorDescription) {
-                case 'ERR_CONNECTION_TIMED_OUT':
-                    if(timeout)
-                        view.webContents.loadURL(timeout).then().catch();
-                    ;break;
-                case 'ERR_CONNECTION_TIMED_OUT':
-                    if(cancel)
-                        view.webContents.loadURL(cancel).then().catch();
-                    ;break;
-            }
         });
 
         if (appendTo) {
