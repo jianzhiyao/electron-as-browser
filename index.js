@@ -377,7 +377,9 @@ class BrowserLikeWindow extends EventEmitter {
                 timeout = undefined,
                 blocked = undefined,
             } = errorPage;
+            //https://cs.chromium.org/chromium/src/net/base/net_error_list.h
             switch (errorDescription) {
+                case 'ERR_NAME_NOT_RESOLVED':
                 case 'ERR_CONNECTION_TIMED_OUT':
                     if (timeout)
                         webContents.loadURL(timeout).then().catch();
