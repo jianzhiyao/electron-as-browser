@@ -52,8 +52,9 @@ log.transports.console.level = false;
  * @param {boolean} [options.debug] - toggle debug
  * @param {string} [options.browserWindowId] - assign browserWindowId
  * @param {string} [options.errorPage = {}] - error page config
- * @param {string} [options.errorPage.timeout = ''] - render where page timeout
- * @param {string} [options.errorPage.blocked = ''] - render where page blocked
+ * @param {string} [options.errorPage.timeout = ''] - render when page timeout
+ * @param {string} [options.errorPage.blocked = ''] - render when page blocked
+ * @param {string} [options.errorPage.error = ''] - render when page error
  */
 class BrowserLikeWindow extends EventEmitter {
     _browserWindowId
@@ -345,7 +346,7 @@ class BrowserLikeWindow extends EventEmitter {
                     isMainFrame
                 });
 
-                if (Object.values(errorPage).indexOf(href) == -1) {
+                if (Object.values(errorPage).indexOf(href) === -1) {
                     this.setTabConfig(id, {url: href});
                 }
             }
@@ -363,7 +364,7 @@ class BrowserLikeWindow extends EventEmitter {
             let title = this.options.blankTitle == webContents.getTitle() ? href : webContents.getTitle();
             log.debug('did-stop-loading', {title: title});
 
-            if (Object.values(errorPage).indexOf(href) == -1) {
+            if (Object.values(errorPage).indexOf(href) === -1) {
                 //not in the list of errorPage
                 this.setTabConfig(id, {isLoading: false, title: title});
             } else {
@@ -376,10 +377,10 @@ class BrowserLikeWindow extends EventEmitter {
             let {
                 timeout = undefined,
                 blocked = undefined,
+                error = undefined,
             } = errorPage;
             //https://cs.chromium.org/chromium/src/net/base/net_error_list.h
             switch (errorDescription) {
-                case 'ERR_NAME_NOT_RESOLVED':
                 case 'ERR_CONNECTION_TIMED_OUT':
                     if (timeout)
                         webContents.loadURL(timeout).then().catch();
@@ -387,6 +388,19 @@ class BrowserLikeWindow extends EventEmitter {
                 case 'ERR_BLOCKED_BY_CLIENT':
                     if (blocked)
                         webContents.loadURL(blocked).then().catch();
+                    break;
+                case 'ERR_NAME_NOT_RESOLVED':
+                case 'ERR_INVALID_URL':
+                case 'ERR_INTERNET_DISCONNECTED':
+                case 'ERR_ERR_ADDRESS_INVALID':
+                case 'ERR_ADDRESS_UNREACHABLE':
+                case 'ERR_CONNECTION_CLOSED':
+                case 'ERR_CONNECTION_RESET':
+                case 'ERR_CONNECTION_REFUSED':
+                case 'ERR_CONNECTION_ABORTED':
+                case 'ERR_CONNECTION_FAILED':
+                    if (error)
+                        webContents.loadURL(error).then().catch();
                     break;
             }
         });

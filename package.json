@@ -1,6 +1,6 @@
 {
   "name": "electron-as-browser2",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Make electron like browser easy and flexible.",
   "keywords": [
     "electron",
