@@ -392,7 +392,7 @@ class BrowserLikeWindow extends EventEmitter {
                 case 'ERR_NAME_NOT_RESOLVED':
                 case 'ERR_INVALID_URL':
                 case 'ERR_INTERNET_DISCONNECTED':
-                case 'ERR_ERR_ADDRESS_INVALID':
+                case 'ERR_ADDRESS_INVALID':
                 case 'ERR_ADDRESS_UNREACHABLE':
                 case 'ERR_CONNECTION_CLOSED':
                 case 'ERR_CONNECTION_RESET':
